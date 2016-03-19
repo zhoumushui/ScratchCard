@@ -28,14 +28,14 @@ public class MainActivity extends Activity {
 	class MyOnCompleteListener implements ScratchCard.OnCompleteListener {
 
 		@Override
-		public void complete(ScratchCard scratchCard) {
+		public void complete(ScratchCard scratchCard, String content) {
 			switch (scratchCard.getId()) {
 			case R.id.scratchCard1:
-				HintUtil.showToast(MainActivity.this, "Card 1 Complete");
+				HintUtil.showToast(MainActivity.this, "Card 1:" + content);
 				break;
 
 			case R.id.scratchCard2:
-				HintUtil.showToast(MainActivity.this, "Card 2 Complete");
+				HintUtil.showToast(MainActivity.this, "Card 2:" + content);
 				break;
 
 			default:

@@ -4,6 +4,7 @@ import java.util.Random;
 
 import com.zms.scratchcard.util.MyLog;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -52,7 +53,7 @@ public class ScratchCard extends View {
 
 	/** 刮刮卡刮完回调 */
 	public interface OnCompleteListener {
-		void complete(ScratchCard scratchCard);
+		void complete(ScratchCard scratchCard, String content);
 	}
 
 	private OnCompleteListener onCompleteListener;
@@ -82,7 +83,7 @@ public class ScratchCard extends View {
 
 		int randomGift = 1 + (int) (new Random().nextFloat() * 10);
 		textResult = "￥" + randomGift;
-		textSize = 80;
+		textSize = 70;
 		rectText = new Rect();
 		insidePaint = new Paint();
 	}
@@ -121,6 +122,7 @@ public class ScratchCard extends View {
 		outsidePaint.setStrokeWidth(20);
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 
@@ -135,7 +137,6 @@ public class ScratchCard extends View {
 			break;
 
 		case MotionEvent.ACTION_UP:
-			// 计算用户抬起手时，已经抹去的面积
 			new Thread(countRunnable).start();
 			break;
 
@@ -147,7 +148,6 @@ public class ScratchCard extends View {
 			}
 			lastDrawX = x;
 			lastDrawY = y;
-
 			break;
 
 		default:
@@ -155,10 +155,10 @@ public class ScratchCard extends View {
 		}
 
 		invalidate();
-
 		return true;
 	}
 
+	/** 计算用户抬起手时，已经抹去的面积 */
 	private Runnable countRunnable = new Runnable() {
 
 		@Override
@@ -209,14 +209,13 @@ public class ScratchCard extends View {
 			drawPath();
 			canvas.drawBitmap(outsideBitmap, 0, 0, null);
 		} else if (onCompleteListener != null) {
-			onCompleteListener.complete(ScratchCard.this);
+			onCompleteListener.complete(ScratchCard.this, textResult);
 		}
 	}
 
 	private void drawPath() {
 
 		outsidePaint.setXfermode(new PorterDuffXfermode(Mode.DST_OUT));
-
 		canvas.drawPath(path, outsidePaint);
 
 	}
