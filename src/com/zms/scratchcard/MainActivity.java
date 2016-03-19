@@ -23,6 +23,15 @@ public class MainActivity extends Activity {
 		ScratchCard scratchCard2 = (ScratchCard) findViewById(R.id.scratchCard2);
 		scratchCard2.setOnCompleteListener(new MyOnCompleteListener());
 
+		ScratchCard scratchCard3 = (ScratchCard) findViewById(R.id.scratchCard3);
+		scratchCard3.setOnCompleteListener(new MyOnCompleteListener());
+
+		ScratchCard scratchCard4 = (ScratchCard) findViewById(R.id.scratchCard4);
+		scratchCard4.setOnCompleteListener(new MyOnCompleteListener());
+
+		ScratchCard scratchCard5 = (ScratchCard) findViewById(R.id.scratchCard5);
+		scratchCard5.setOnCompleteListener(new MyOnCompleteListener());
+
 	}
 
 	class MyOnCompleteListener implements ScratchCard.OnCompleteListener {
@@ -36,6 +45,18 @@ public class MainActivity extends Activity {
 
 			case R.id.scratchCard2:
 				HintUtil.showToast(MainActivity.this, "Card 2:" + content);
+				break;
+
+			case R.id.scratchCard3:
+				HintUtil.showToast(MainActivity.this, "Card 3:" + content);
+				break;
+
+			case R.id.scratchCard4:
+				HintUtil.showToast(MainActivity.this, "Card 4:" + content);
+				break;
+
+			case R.id.scratchCard5:
+				HintUtil.showToast(MainActivity.this, "Card 5:" + content);
 				break;
 
 			default:
