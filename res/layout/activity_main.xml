@@ -11,11 +11,13 @@
         android:orientation="horizontal" >
 
         <com.zms.scratchcard.view.ScratchCard
+            android:id="@+id/scratchCard1"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:layout_margin="5dp" />
 
         <com.zms.scratchcard.view.ScratchCard
+            android:id="@+id/scratchCard2"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:layout_margin="5dp" />

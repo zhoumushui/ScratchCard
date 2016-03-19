@@ -2,6 +2,8 @@ package com.zms.scratchcard.view;
 
 import java.util.Random;
 
+import com.zms.scratchcard.util.MyLog;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -38,6 +40,26 @@ public class ScratchCard extends View {
 	/** 画布 */
 	private Canvas canvas;
 	private int lastDrawX, lastDrawY;
+
+	/**
+	 * 是否需要绘制遮盖层
+	 * 
+	 * volatile:确保子线程里更新，该变量对主线程的可见性
+	 */
+	private volatile boolean shouldDrawOutside = true;
+	/** 清除遮盖层百分比阀值 */
+	private static final int PERCENT_CLEAR = 50;
+
+	/** 刮刮卡刮完回调 */
+	public interface OnCompleteListener {
+		void complete(ScratchCard scratchCard);
+	}
+
+	private OnCompleteListener onCompleteListener;
+
+	public void setOnCompleteListener(OnCompleteListener onCompleterListener) {
+		this.onCompleteListener = onCompleterListener;
+	}
 
 	public ScratchCard(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -113,7 +135,8 @@ public class ScratchCard extends View {
 			break;
 
 		case MotionEvent.ACTION_UP:
-
+			// 计算用户抬起手时，已经抹去的面积
+			new Thread(countRunnable).start();
 			break;
 
 		case MotionEvent.ACTION_MOVE:
@@ -136,14 +159,58 @@ public class ScratchCard extends View {
 		return true;
 	}
 
+	private Runnable countRunnable = new Runnable() {
+
+		@Override
+		public void run() {
+			int viewWidth = getWidth();
+			int viewHeight = getHeight();
+
+			float pixelWipe = 0; // 抹去的像素
+			float pixelTotal = viewWidth * viewHeight; // 总像素
+
+			Bitmap bitmap = outsideBitmap;
+			int[] arrayBitmapPixel = new int[viewWidth * viewHeight];
+			// 获得Bitmap上所有的像素信息
+			bitmap.getPixels(arrayBitmapPixel, 0, viewWidth, 0, 0, viewWidth,
+					viewHeight);
+
+			// 遍历
+			for (int i = 0; i < viewWidth; i++) {
+				for (int j = 0; j < viewHeight; j++) {
+					int index = i + viewWidth * j; // 下标
+					if (arrayBitmapPixel[index] == 0) {
+						pixelWipe++;
+					}
+				}
+			}
+
+			// 计算百分比
+			if (pixelWipe > 0 && pixelTotal > 0) {
+				int percent = (int) (pixelWipe * 100 / pixelTotal);
+				MyLog.v("Percent:" + percent);
+				if (percent > PERCENT_CLEAR) {
+					shouldDrawOutside = false;
+					postInvalidate(); // 子线程不能直接invalidate();重绘区域
+				}
+			}
+
+		}
+
+	};
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 
 		canvas.drawText(textResult, getWidth() / 2 - rectText.width() / 2,
 				getHeight() / 2 + rectText.height() / 2, insidePaint);
 
-		drawPath();
-		canvas.drawBitmap(outsideBitmap, 0, 0, null);
+		if (shouldDrawOutside) {
+			drawPath();
+			canvas.drawBitmap(outsideBitmap, 0, 0, null);
+		} else if (onCompleteListener != null) {
+			onCompleteListener.complete(ScratchCard.this);
+		}
 	}
 
 	private void drawPath() {

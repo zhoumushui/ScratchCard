@@ -2,14 +2,46 @@ package com.zms.scratchcard;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+
+import com.zms.scratchcard.util.HintUtil;
+import com.zms.scratchcard.view.ScratchCard;
 
 public class MainActivity extends Activity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		initialLayout();
+	}
+
+	private void initialLayout() {
+		ScratchCard scratchCard1 = (ScratchCard) findViewById(R.id.scratchCard1);
+		scratchCard1.setOnCompleteListener(new MyOnCompleteListener());
+
+		ScratchCard scratchCard2 = (ScratchCard) findViewById(R.id.scratchCard2);
+		scratchCard2.setOnCompleteListener(new MyOnCompleteListener());
+
+	}
+
+	class MyOnCompleteListener implements ScratchCard.OnCompleteListener {
+
+		@Override
+		public void complete(ScratchCard scratchCard) {
+			switch (scratchCard.getId()) {
+			case R.id.scratchCard1:
+				HintUtil.showToast(MainActivity.this, "Card 1 Complete");
+				break;
+
+			case R.id.scratchCard2:
+				HintUtil.showToast(MainActivity.this, "Card 2 Complete");
+				break;
+
+			default:
+				break;
+			}
+		}
+
+	}
 }
